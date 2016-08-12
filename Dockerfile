@@ -1,6 +1,7 @@
 FROM jpetazzo/dind
 
-ENV GOCD_VERSION 15.1.0-1863
+ENV GOCD_VERSION 16.7.0-3819
+ENV COMPOSE_VERSION 1.8.0
 ENV GOCD_DISTR go-agent.deb
 
 RUN apt-get update \
@@ -9,16 +10,16 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 # Install go.cd agent
-RUN gpg --keyserver pgp.mit.edu --recv-keys 9149B0A6173454C7 \
-    && curl -fSL "http://dl.bintray.com/gocd/gocd-deb/go-agent-$GOCD_VERSION.deb" -o $GOCD_DISTR \
-    && curl -fSL "http://dl.bintray.com/gocd/gocd-deb/go-agent-$GOCD_VERSION.deb.asc" -o $GOCD_DISTR.asc \
-    && gpg --verify $GOCD_DISTR.asc \
+RUN curl -fSL "https://download.go.cd/binaries/$GOCD_VERSION/deb/go-agent-$GOCD_VERSION.deb" -o $GOCD_DISTR \
     && dpkg -i $GOCD_DISTR \
-    && rm $GOCD_DISTR \
-    && rm $GOCD_DISTR.asc
+    && rm $GOCD_DISTR
 
 RUN mkdir /home/go \
     && usermod -d /home/go go
+
+RUN set -x && \
+    curl -L https://github.com/docker/compose/releases/download/$COMPOSE_VERSION/docker-compose-Linux-x86_64 > /usr/local/bin/docker-compose && \
+    chmod +x /usr/local/bin/docker-compose
 
 VOLUME /var/lib/go-agent
 
